@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 import logging
 import re
 
-import tachyonic.neutrino
+from tachyonic.neutrino import exceptions
+from tachyonic.neutrino import model as nfw_model
 
 from tachyonic.api.mysql import Mysql
 from tachyonic.api.api.sql import table_has_col
@@ -50,17 +51,17 @@ def get(model, req, resp, id, where=None, where_values=None,
             sql_values.append(domain_id)
     else:
         if domain_field is True:
-            raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Require domain!")
+            raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
 
     sql_search_where = []
     if search is not None:
         search = "%s%s" % (search,'%')
         for field in data._declared_fields:
             f = getattr(data, field)
-            if isinstance(f, tachyonic.neutrino.model.Fields.Text):
+            if isinstance(f, nfw_model.Fields.Text):
                 sql_search_where.append("%s like %s" % (field, '%s'))
                 sql_values.append(search)
-            if isinstance(f, tachyonic.neutrino.model.Fields.Integer):
+            if isinstance(f, nfw_model.Fields.Integer):
                 sql_search_where.append("%s like %s" % (field, '%s'))
                 sql_values.append(int(search))
         if len(sql_search_where) > 0:
@@ -75,7 +76,7 @@ def get(model, req, resp, id, where=None, where_values=None,
         else:
             if tenant_field is True:
                 if domain_admin is False:
-                    raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Not within tenant!")
+                    raise exceptions.HTTPForbidden("Access Forbidden", "Not within tenant!")
 
     if where is not None:
         sql_where.append(where)
@@ -100,7 +101,7 @@ def get(model, req, resp, id, where=None, where_values=None,
             order_field = order_options[0]
             order_field = regex.sub('', order_field)
             if order_field not in data._declared_fields:
-                raise tachyonic.neutrino.HTTPInvalidParam(order_field)
+                raise exceptions.HTTPInvalidParam(order_field)
             order_type = "asc"
             if len(order_options) == 2:
                 order_type = order_options[1].lower()
@@ -128,7 +129,7 @@ def get(model, req, resp, id, where=None, where_values=None,
         if len(data) == 1:
             return data[0].dump_json()
         else:
-            raise tachyonic.neutrino.HTTPNotFound("Not Found", "Object not found")
+            raise exceptions.HTTPNotFound("Not Found", "Object not found")
     else:
         return data.dump_json()
 
@@ -146,13 +147,13 @@ def post(model, req, ignore_tenant=False, callback=None):
 
     if domain_id is None:
         if domain_field is True:
-            raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Require domain!")
+            raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
 
     if ignore_tenant is False:
         if tenant_id is None:
             if tenant_field is True:
                 if domain_admin is False:
-                    raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Not within tenant!")
+                    raise exceptions.HTTPForbidden("Access Forbidden", "Not within tenant!")
 
     request_body = parse_body(req.read(),
                               domain_field,
@@ -164,7 +165,6 @@ def post(model, req, ignore_tenant=False, callback=None):
     if callback is not None:
         callback(data)
     data.commit()
-
     return data.dump_json()
 
 
@@ -181,13 +181,13 @@ def put(model, req, id, ignore_tenant=False, callback=None):
 
     if domain_id is None:
         if domain_field is True:
-            raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Require domain!")
+            raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
 
     if ignore_tenant is False:
         if tenant_id is None:
             if tenant_field is True:
                 if domain_admin is False:
-                    raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Not within tenant!")
+                    raise exceptions.HTTPForbidden("Access Forbidden", "Not within tenant!")
 
     request_body = parse_body(req.read(),
                               domain_field,
@@ -224,7 +224,7 @@ def put(model, req, id, ignore_tenant=False, callback=None):
         return data.dump_json()
     else:
         db.commit()
-        raise tachyonic.neutrino.HTTPNotFound("Not Found", "Object not found")
+        raise exceptions.HTTPNotFound("Not Found", "Object not found")
 
 
 def delete(model, req, id, ignore_tenant=False, callback=None):
@@ -240,13 +240,13 @@ def delete(model, req, id, ignore_tenant=False, callback=None):
 
     if domain_id is None:
         if domain_field is True:
-            raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Require domain!")
+            raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
 
     if ignore_tenant is False:
         if tenant_id is None:
             if tenant_field is True:
                 if domain_admin is False:
-                    raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Not within tenant!")
+                    raise exceptions.HTTPForbidden("Access Forbidden", "Not within tenant!")
     else:
         tenant_field = False
 
@@ -271,4 +271,4 @@ def delete(model, req, id, ignore_tenant=False, callback=None):
         return "{\"action\": \"success\"}"
     else:
         db.commit()
-        raise tachyonic.neutrino.HTTPNotFound("Not Found", "Object not found")
+        raise exceptions.HTTPNotFound("Not Found", "Object not found")

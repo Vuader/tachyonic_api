@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS `tenant`;
 
 CREATE TABLE `tenant` (
     `id` varchar(36) NOT NULL,
+    `etag` varchar(36) NOT NULL,
     `parent_id` varchar(36) NULL,
     `domain_id` varchar(36) NOT NULL,
     `external_id` varchar(36) NULL,
@@ -62,6 +63,7 @@ DROP TABLE IF EXISTS `user`;
 
 CREATE TABLE `user` (
     `id` varchar(36) NOT NULL,
+    `etag` varchar(36) NOT NULL,
     `domain_id` varchar(36) NOT NULL,
     `external_id` varchar(36) NULL,
     `tenant_id` varchar(36) NULL,

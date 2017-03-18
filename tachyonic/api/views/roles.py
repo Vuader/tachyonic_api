@@ -3,38 +3,39 @@ from __future__ import unicode_literals
 
 import logging
 
-import tachyonic
+from tachyonic import app
+from tachyonic import router
 from tachyonic.neutrino import constants as const
-
 from tachyonic.common.models import roles
+
 from tachyonic.api.api import orm as api
 
 log = logging.getLogger(__name__)
 
 
-@tachyonic.app.resources()
+@app.resources()
 class Roles(object):
-    def __init__(self, app):
-        app.router.add(const.HTTP_GET,
-                       '/roles',
-                       self.get,
-                       'tachyonic:login')
-        app.router.add(const.HTTP_GET,
-                       '/roles/{id}',
-                       self.get,
-                       'roles:admin')
-        app.router.add(const.HTTP_POST,
-                       '/roles',
-                       self.post,
-                       'roles:admin')
-        app.router.add(const.HTTP_PUT,
-                       '/roles/{id}',
-                       self.put,
-                       'roles:admin')
-        app.router.add(const.HTTP_DELETE,
-                       '/roles/{id}',
-                       self.delete,
-                       'roles:admin')
+    def __init__(self):
+        router.add(const.HTTP_GET,
+                   '/v1/roles',
+                   self.get,
+                   'tachyonic:login')
+        router.add(const.HTTP_GET,
+                  '/v1/role/{id}',
+                   self.get,
+                   'roles:admin')
+        router.add(const.HTTP_POST,
+                   '/v1/role',
+                   self.post,
+                   'roles:admin')
+        router.add(const.HTTP_PUT,
+                   '/v1/role/{id}',
+                   self.put,
+                   'roles:admin')
+        router.add(const.HTTP_DELETE,
+                   '/v1/role/{id}',
+                   self.delete,
+                   'roles:admin')
 
     def get(self, req, resp, id=None):
         return api.get(roles.Roles, req, resp, id)
