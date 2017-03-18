@@ -209,9 +209,10 @@ setup_dict = dict(
     url=metadata.url,
     description=metadata.description,
     long_description=read('README.rst'),
+    include_package_data=True,
     namespace_packages =  [
         'tachyonic'
-        ],   
+        ],
     # Find a list of classifiers here:
     # <http://pypi.python.org/pypi?%3Aaction=list_classifiers>
     classifiers=[
@@ -229,7 +230,6 @@ setup_dict = dict(
         'Topic :: Documentation',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Libraries :: Application Frameworks'
-        
     ],
     packages=find_packages(exclude=(TESTS_DIRECTORY,)),
     install_requires=[
