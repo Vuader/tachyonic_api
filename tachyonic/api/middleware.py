@@ -13,9 +13,6 @@ log = logging.getLogger(__name__)
 
 
 class Token(object):
-    def __init__(self, app):
-        pass
-
     def pre(self, req, resp):
         tenant = req.headers.get('X-Tenant')
         domain = req.headers.get('X-Domain', 'default')
