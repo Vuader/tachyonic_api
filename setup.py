@@ -209,6 +209,7 @@ setup_dict = dict(
     url=metadata.url,
     description=metadata.description,
     long_description=read('README.rst'),
+    include_package_data=True,
     namespace_packages =  ['tachyonic'],
     # Find a list of classifiers here:
     # <http://pypi.python.org/pypi?%3Aaction=list_classifiers>
