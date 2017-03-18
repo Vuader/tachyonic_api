@@ -144,7 +144,7 @@ def _lint():
     project_python_files = [filename for filename in get_project_files()
                             if filename.endswith(b'.py')]
     retcode = subprocess.call(
-        ['flake8', '--max-complexity=10'] + project_python_files)
+        ['flake8', '--max-complexity=41'] + project_python_files)
     if retcode == 0:
         print_success_message('No style errors')
     return retcode
@@ -210,9 +210,7 @@ setup_dict = dict(
     description=metadata.description,
     long_description=read('README.rst'),
     include_package_data=True,
-    namespace_packages =  [
-        'tachyonic'
-        ],
+    namespace_packages =  ['tachyonic']
     # Find a list of classifiers here:
     # <http://pypi.python.org/pypi?%3Aaction=list_classifiers>
     classifiers=[
