@@ -5,7 +5,8 @@ import logging
 import json
 import datetime
 
-import tachyonic
+from tachyonic import app
+from tachyonic import router
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino import exceptions
 from tachyonic.common.driver import get_driver
@@ -15,29 +16,29 @@ from tachyonic.api import tenant
 log = logging.getLogger(__name__)
 
 
-@tachyonic.app.resources()
+@app.resources()
 class Tenants(object):
-    def __init__(self, app):
-        app.router.add(const.HTTP_GET,
-                       '/tenants',
-                       self.get,
-                       'tenants:view')
-        app.router.add(const.HTTP_GET,
-                       '/tenants/{tenant_id}',
-                       self.get,
-                       'tenants:view')
-        app.router.add(const.HTTP_POST,
-                       '/tenants',
-                       self.post,
-                       'tenants:admin')
-        app.router.add(const.HTTP_PUT,
-                       '/tenants/{tenant_id}',
-                       self.put,
-                       'tenants:admin')
-        app.router.add(const.HTTP_DELETE,
-                       '/tenants/{tenant_id}',
-                       self.delete,
-                       'tenants:admin')
+    def __init__(self):
+        router.add(const.HTTP_GET,
+                   '/v1/tenants',
+                   self.get,
+                   'tenants:view')
+        router.add(const.HTTP_GET,
+                   '/v1/tenant/{tenant_id}',
+                   self.get,
+                   'tenants:view')
+        router.add(const.HTTP_POST,
+                   '/v1/tenant',
+                   self.post,
+                   'tenants:admin')
+        router.add(const.HTTP_PUT,
+                   '/v1/tenant/{tenant_id}',
+                   self.put,
+                   'tenants:admin')
+        router.add(const.HTTP_DELETE,
+                   '/v1/tenant/{tenant_id}',
+                   self.delete,
+                   'tenants:admin')
 
     def get(self, req, resp, tenant_id=None):
         driver = req.config.get('tenant').get('driver')

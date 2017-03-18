@@ -4,7 +4,8 @@ from __future__ import unicode_literals
 import logging
 import json
 
-import tachyonic
+from tachyonic import app
+from tachyonic import router
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino.mysql import Mysql
 from tachyonic.neutrino import exceptions
@@ -16,11 +17,11 @@ from tachyonic.api import auth
 log = logging.getLogger(__name__)
 
 
-@tachyonic.app.resources()
+@app.resources()
 class Authenticate(object):
-    def __init__(self, app):
-        app.router.add(const.HTTP_POST, '/token', self.post, 'tachyonic:public')
-        app.router.add(const.HTTP_GET, '/token', self.get, 'tachyonic:public')
+    def __init__(self):
+        router.add(const.HTTP_POST, '/v1/token', self.post, 'tachyonic:public')
+        router.add(const.HTTP_GET, '/v1/token', self.get, 'tachyonic:public')
 
     def _new_token(self, user_id, expire=1):
         db = Mysql()

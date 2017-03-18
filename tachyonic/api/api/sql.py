@@ -4,8 +4,9 @@ from __future__ import unicode_literals
 import logging
 import json
 import re
+import uuid
 
-import tachyonic.neutrino
+from tachyonic.neutrino import exceptions
 
 from tachyonic.api.mysql import Mysql
 
@@ -63,7 +64,7 @@ def sql_get_query(table, req, resp, id, where=None,
             for field in field_results:
                 fields[t + "." + field['COLUMN_NAME']] = field['DATA_TYPE']
         else:
-            raise tachyonic.neutrino.HTTPNotFound("Not Found", "Table not found")
+            raise exceptions.HTTPNotFound("Not Found", "Table not found")
 
     tenant_id = req.context.get('tenant_id')
     domain_id = req.context.get('domain_id')
@@ -92,7 +93,7 @@ def sql_get_query(table, req, resp, id, where=None,
             sql_values.append(domain_id)
     else:
         if domain_field is True:
-            raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Require domain!")
+            raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
 
     sql_search_where = []
     if search is not None:
@@ -119,7 +120,7 @@ def sql_get_query(table, req, resp, id, where=None,
         else:
             if tenant_field is True:
                 if domain_admin is False:
-                    raise tachyonic.neutrino.HTTPForbidden("Access Forbidden", "Not within tenant!")
+                    raise exceptions.HTTPForbidden("Access Forbidden", "Not within tenant!")
 
     if where is not None:
         sql_where.append(where)
@@ -146,9 +147,9 @@ def sql_get_query(table, req, resp, id, where=None,
             fields_no_tables = [re.sub(".*\.","",f) for f in fields]
             if order_field not in fields_no_tables:
                 if left_join is None:
-                    raise tachyonic.neutrino.HTTPInvalidParam(order_field)
+                    raise exceptions.HTTPInvalidParam(order_field)
                 elif order_field not in left_join.additional_select.values():
-                    raise tachyonic.neutrino.HTTPInvalidParam(order_field)
+                    raise exceptions.neutrino.HTTPInvalidParam(order_field)
             order_type = "asc"
             if len(order_options) == 2:
                 order_type = order_options[1].lower()
@@ -223,6 +224,6 @@ def sql_get(table, req, resp, id, where=None, where_values=None,
         if len(result) == 1:
             return json.dumps(result[0])
         else:
-            raise tachyonic.neutrino.HTTPNotFound("Not Found", "Object not found")
+            raise exceptions.HTTPNotFound("Not Found", "Object not found")
     else:
         return json.dumps(result, indent=4)

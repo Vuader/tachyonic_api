@@ -5,7 +5,8 @@ import logging
 import json
 from collections import OrderedDict
 
-import tachyonic
+from tachyonic import router
+from tachyonic import app
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino.mysql import Mysql
 
@@ -15,31 +16,33 @@ from tachyonic.api import auth
 log = logging.getLogger(__name__)
 
 
-@tachyonic.app.resources()
+@app.resources()
 class UsersRoles(object):
-    def __init__(self, app):
-        app.router.add(const.HTTP_GET,
-                       '/users/roles/{user_id}',
-                       self.get,
-                       'users:view')
-
-        app.router.add(const.HTTP_POST,
-                       '/users/roles/{user_id}/{role}/{domain}',
-                       self.post,
-                       'users:admin')
-        app.router.add(const.HTTP_POST,
-                       '/users/roles/{user_id}/{role}/{domain}/{tenant}',
-                       self.post,
-                       'users:admin')
-
-        app.router.add(const.HTTP_DELETE,
-                       '/users/roles/{user_id}/{role}/{domain}',
-                       self.delete,
-                       'users:admin')
-        app.router.add(const.HTTP_DELETE,
-                       '/users/roles/{user_id}/{role}/{domain}/{tenant}',
-                       self.delete,
-                       'users:admin')
+    def __init__(self):
+        router.add(const.HTTP_GET,
+                   '/v1/user/roles',
+                   self.get,
+                   'users:view')
+        router.add(const.HTTP_GET,
+                   '/v1/user/roles/{user_id}',
+                   self.get,
+                   'users:view')
+        router.add(const.HTTP_POST,
+                   '/v1/user/role/{user_id}/{role}/{domain}',
+                   self.post,
+                   'users:admin')
+        router.add(const.HTTP_POST,
+                   '/v1/user/role/{user_id}/{role}/{domain}/{tenant}',
+                   self.post,
+                   'users:admin')
+        router.add(const.HTTP_DELETE,
+                   '/v1/user/role/{user_id}/{role}/{domain}',
+                   self.delete,
+                   'users:admin')
+        router.add(const.HTTP_DELETE,
+                   '/v1/user/role/{user_id}/{role}/{domain}/{tenant}',
+                   self.delete,
+                   'users:admin')
 
     def get(self, req, resp, user_id):
         db = Mysql()
