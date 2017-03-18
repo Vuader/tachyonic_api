@@ -149,7 +149,7 @@ def get_user_domain_admin(user_id, domain_id):
 
 def get_user_domains(user_id):
     db = Mysql()
-    sql_domains_result = db.execute("SELECT domain_id,tenant_id" +
+    sql_domains_result = db.execute("SELECT domain_id" +
                                     " FROM user_role WHERE user_id = %s" +
                                     " GROUP BY domain_id", (user_id,))
     result = []
