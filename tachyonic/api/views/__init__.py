@@ -4,3 +4,4 @@ import users
 import roles
 import domains
 import tenants
+import search
