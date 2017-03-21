@@ -84,10 +84,13 @@ class MysqlDriver(object):
         sql_search_where = []
         if search is not None:
             for field in fields:
-                if 'char' in fields[field]:
+                if 'enum' in fields[field]['Type']:
                     sql_search_where.append("%s like %s" % (field, '%s'))
                     sql_values.append(search + "%")
-                if 'int' in fields[field]:
+                if 'char' in fields[field]['Type']:
+                    sql_search_where.append("%s like %s" % (field, '%s'))
+                    sql_values.append(search + "%")
+                if 'int' in fields[field]['Type']:
                     try:
                         sql_values.append(int(search))
                         sql_search_where.append("%s = %s" % (field, '%s'))

@@ -127,11 +127,11 @@ def get(model, req, resp, id, where=None, where_values=None,
     data.commit()
     if id is not None:
         if len(data) == 1:
-            return data[0].dump_json()
+            return data[0].dump_json(indent=4)
         else:
             raise exceptions.HTTPNotFound("Not Found", "Object not found")
     else:
-        return data.dump_json()
+        return data.dump_json(indent=4)
 
 
 def post(model, req, ignore_tenant=False, callback=None):
@@ -165,7 +165,7 @@ def post(model, req, ignore_tenant=False, callback=None):
     if callback is not None:
         callback(data)
     data.commit()
-    return data.dump_json()
+    return data.dump_json(indent=4)
 
 
 def put(model, req, id, ignore_tenant=False, callback=None):
@@ -221,7 +221,7 @@ def put(model, req, id, ignore_tenant=False, callback=None):
         if callback is not None:
             callback(id, data)
         data.commit()
-        return data.dump_json()
+        return data.dump_json(indent=4)
     else:
         db.commit()
         raise exceptions.HTTPNotFound("Not Found", "Object not found")

@@ -65,6 +65,11 @@ class Tenants(object):
             for key in row:
                 if isinstance(row[key],datetime.datetime):
                     row[key] = row[key].strftime("%Y/%m/%d %H:%M:%S")
+                if key == "enabled":
+                    if row[key] == 0:
+                        row[key] = False
+                    elif row[key] == 1:
+                        row[key] = True
 
 
         if tenant_id is not None:

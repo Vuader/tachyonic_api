@@ -31,7 +31,7 @@ def parse_body(body, domain, domain_id, tenant, tenant_id):
     if tenant is True:
         obj['tenant_id'] = tenant_id
 
-    return json.dumps(obj)
+    return json.dumps(obj, indent=4)
 
 
 class LeftJoin():
@@ -222,7 +222,7 @@ def sql_get(table, req, resp, id, where=None, where_values=None,
 
     if id is not None:
         if len(result) == 1:
-            return json.dumps(result[0])
+            return json.dumps(result[0], indent=4)
         else:
             raise exceptions.HTTPNotFound("Not Found", "Object not found")
     else:

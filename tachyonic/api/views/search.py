@@ -36,7 +36,7 @@ class Search(object):
             records, data = driver.retrieve(domain_id,
                                             None,
                                             search,
-                                            None,
+                                            "name asc",
                                             None,
                                             None)
             for d in data:
