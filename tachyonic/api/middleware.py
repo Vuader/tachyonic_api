@@ -14,14 +14,10 @@ log = logging.getLogger(__name__)
 
 class Token(object):
     def pre(self, req, resp):
-        tenant = req.headers.get('X-Tenant')
+        tenant_id = req.headers.get('X-Tenant-Id')
         domain = req.headers.get('X-Domain', 'default')
         otp = req.headers.get('X-Otp', None)
         domain_id = auth.get_domain_id(domain)
-        if tenant is not None:
-            tenant_id = auth.get_tenant_id(tenant)
-        else:
-            tenant_id = None
 
         req.context['tenant_id'] = None
         req.context['domain_admin'] = False
@@ -32,7 +28,7 @@ class Token(object):
         req.context['roles'] = []
 
         resp.headers['Content-Type'] = const.APPLICATION_JSON
-        token = req.headers.get('X-Auth_Token')
+        token = req.headers.get('X-Auth-Token')
         if token is not None:
             db = Mysql()
             sql = "SELECT * FROM token where token = %s"

@@ -5,3 +5,4 @@ import roles
 import domains
 import tenants
 import search
+import tenant
