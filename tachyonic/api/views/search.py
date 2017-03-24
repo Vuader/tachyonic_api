@@ -4,12 +4,14 @@ from __future__ import unicode_literals
 import logging
 import json
 import datetime
+import copy
 
 from tachyonic import app
 from tachyonic import router
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino import exceptions
 from tachyonic.common.driver import get_driver
+from tachyonic.api.api import sql
 
 from tachyonic.api import tenant
 
@@ -29,28 +31,29 @@ class Search(object):
         driver = get_driver(driver)()
 
         domain_id = req.context.get('domain_id')
+
         if domain_id is None:
             raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
-        search = req.headers.get('X-Search')
-        if search is not None:
-            records, data = driver.retrieve(domain_id,
-                                            None,
-                                            search,
-                                            "name asc",
-                                            None,
-                                            None)
-            for d in data:
-                if 'external_id' in d:
-                    d['id'] = tenant.get_local_id(domain_id, d['external_id'])
 
-            resp.headers['X-Total-Rows'] = records
-            resp.headers['X-Filtered-Rows'] = records
+        result = sql.get_query('tenant', req, resp,
+                                       req.context['tenant_id'],
+                                       ignore_tenant=True)
+        if len(result) == 0:
+            result = sql.get_query('tenant', req, resp, None)
+        for t in result:
+            if t['external_id'] is not None:
+                q = driver.retrieve(domain_id, t['external_id'])
+                t.update(q)
 
-            for row in data:
-                for key in row:
-                    if isinstance(row[key],datetime.datetime):
-                        row[key] = row[key].strftime("%Y/%m/%d %H:%M:%S")
-        else:
-            data = []
+        for row in result:
+            for key in row:
+                if isinstance(row[key],datetime.datetime):
+                    row[key] = row[key].strftime("%Y/%m/%d %H:%M:%S")
+                if key == "enabled":
+                    if row[key] == 0:
+                        row[key] = False
+                    elif row[key] == 1:
+                        row[key] = True
 
-        return json.dumps(data, indent=4)
+
+        return json.dumps(result, indent=4)

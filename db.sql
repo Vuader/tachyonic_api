@@ -74,7 +74,7 @@ DROP TABLE IF EXISTS `tenant`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tenant` (
   `id` varchar(36) NOT NULL,
-  `parent_id` varchar(36) DEFAULT NULL,
+  `tenant_id` varchar(36) DEFAULT NULL,
   `domain_id` varchar(36) NOT NULL,
   `external_id` varchar(36) DEFAULT NULL,
   `tenant_type` enum('individual','organization') NOT NULL DEFAULT 'individual',
@@ -110,8 +110,8 @@ CREATE TABLE `tenant` (
   `creation_time` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `tenant_unique` (`domain_id`,`external_id`,`name`),
-  KEY `parent_id` (`parent_id`),
-  CONSTRAINT `tenant_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `tenant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  KEY `tenant_id` (`tenant_id`),
+  CONSTRAINT `tenant_ibfk_1` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `tenant_ibfk_2` FOREIGN KEY (`domain_id`) REFERENCES `domain` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
