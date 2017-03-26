@@ -240,8 +240,7 @@ setup_dict = dict(
         'flake8==2.1.0',
     ],
     cmdclass={'test': TestAllCommand},
-    zip_safe=False,  # don't use eggs
-    entry_points={'tachyonic.client.plugins': 'Users = tachyonic.api.client:Users'}
+    zip_safe=False  # don't use eggs
 )
 
 

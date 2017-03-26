@@ -8,9 +8,10 @@ from collections import OrderedDict
 from tachyonic import router
 from tachyonic import app
 from tachyonic.neutrino import constants as const
+from tachyonic.neutrino import exceptions
 from tachyonic.neutrino.mysql import Mysql
 
-from tachyonic.api import api
+from tachyonic.api.api import sql as api
 from tachyonic.api import auth
 
 log = logging.getLogger(__name__)
@@ -19,10 +20,6 @@ log = logging.getLogger(__name__)
 @app.resources()
 class UsersRoles(object):
     def __init__(self):
-        router.add(const.HTTP_GET,
-                   '/v1/user/roles',
-                   self.get,
-                   'users:view')
         router.add(const.HTTP_GET,
                    '/v1/user/roles/{user_id}',
                    self.get,
@@ -46,7 +43,7 @@ class UsersRoles(object):
 
     def get(self, req, resp, user_id):
         db = Mysql()
-        user = api.sql_get_query('user', req, resp, user_id)
+        user = api.get_query('user', req, resp, user_id)
         response = db.execute("SELECT * FROM user_role WHERE user_id = %s",
                               (user_id,))
         roles = []
@@ -65,8 +62,9 @@ class UsersRoles(object):
         return json.dumps(roles, indent=4)
 
     def post(self, req, resp, user_id, role, domain, tenant=None):
-        user = api.sql_get_query('user', req, resp, user_id)
+        user = api.get_query('user', req, resp, user_id)
         domain_id = auth.get_domain_id(domain)
+        domain_name = auth.get_domain_name(domain)
         role_id = auth.get_role_id(role)
         if tenant is not None:
             tenant_id = auth.get_tenant_id(tenant)
@@ -74,6 +72,41 @@ class UsersRoles(object):
             tenant_id = None
         db = Mysql()
         values = []
+
+        # SECURITY CHECKS
+        if req.context['is_root'] is True:
+            pass
+        else:
+            if req.context['domain_admin'] is True:
+                if domain_id != req.context['domain_id']:
+                    raise exceptions.HTTPForbidden("Role Assignment",
+                                                   "Not within domain \"%s\"" % domain_name)
+            else:
+                if domain_id != req.context['domain_id']:
+                    raise exceptions.HTTPForbidden("Role Assignment",
+                                                   "Not within domain \"%s\"" % domain_name)
+                if tenant_id is None:
+                    raise exceptions.HTTPForbidden("Role Assignment",
+                                                   "Not domain \"%s\" admin" % domain_name)
+                sql = "SELECT * FROM user_role"
+                sql += " WHERE user_id = %s"
+                sql += " AND tenant_id = %s"
+                sql += " AND domain_id = %s"
+                result_role_check = db.execute(sql, (req.context['user_id'],
+                                                     tenant_id,
+                                                     domain_id))
+                sql = "SELECT * FROM tenant"
+                sql += " WHERE tenant_id = %s"
+                sql += " AND domain_id = %s"
+                result_sub_tenant_check = db.execute(sql,
+                                                     (req.context['tenant_id'],
+                                                      req.context['domain_id']))
+                db.commit()
+                if (len(result_role_check) == 0 and
+                        len(result_sub_tenant_check) == 0):
+                    raise exceptions.HTTPForbidden("Role Assignment",
+                                                   "Access Denied to Tenant")
+
         sql = "SELECT * FROM user_role"
         sql += " WHERE user_id = %s"
         sql += " AND role_id = %s"
@@ -85,6 +118,8 @@ class UsersRoles(object):
         if tenant is not None:
             sql += " and tenant_id = %s"
             values.append(tenant_id)
+        else:
+            sql += " and tenant_id is null"
 
         c_role = db.execute(sql, values)
         if len(c_role) == 0 and len(user) > 0:
@@ -96,7 +131,7 @@ class UsersRoles(object):
             db.commit()
 
     def delete(self, req, resp, user_id, role, domain, tenant=None):
-        user = api.sql_get_query('user', req, resp, user_id)
+        user = api.get_query('user', req, resp, user_id)
         domain_id = auth.get_domain_id(domain)
         role_id = auth.get_role_id(role)
         if tenant is not None:
@@ -118,6 +153,8 @@ class UsersRoles(object):
             if tenant is not None:
                 sql += " and tenant_id = %s"
                 values.append(tenant_id)
+            else:
+                sql += " and tenant_id is null"
 
             db.execute(sql, values)
             db.commit()

@@ -10,8 +10,9 @@ from tachyonic import router
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino import exceptions
 from tachyonic.common.driver import get_driver
+from tachyonic.common.models import tenants
 
-from tachyonic.api import tenant
+from tachyonic.api.api import orm as orm_api
 
 log = logging.getLogger(__name__)
 
@@ -27,37 +28,10 @@ class Tenant(object):
     def get(self, req, resp):
         tenant_id = req.context['tenant_id']
         if tenant_id is not None:
+            # TODO DRIVER CALLBACK LINK
             driver = req.config.get('tenant').get('driver')
             driver = get_driver(driver)()
-
-            domain_id = req.context.get('domain_id')
-            if domain_id is None:
-                raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
-
-            records, data = driver.retrieve(domain_id, tenant_id,
-                                            None, None, None, None)
-            for d in data:
-                if 'external_id' in d:
-                    d['id'] = tenant.get_local_id(domain_id, d['external_id'])
-
-            resp.headers['X-Total-Rows'] = records
-            resp.headers['X-Filtered-Rows'] = records
-
-            for row in data:
-                for key in row:
-                    if isinstance(row[key],datetime.datetime):
-                        row[key] = row[key].strftime("%Y/%m/%d %H:%M:%S")
-                    if key == "enabled":
-                        if row[key] == 0:
-                            row[key] = False
-                        elif row[key] == 1:
-                            row[key] = True
-
-
-            if len(data) == 1:
-                data = data[0]
-                return json.dumps(data, indent=4)
-            else:
-                raise exceptions.HTTPNotFound("Not Found", "Tenant not found")
+            return orm_api.get(tenants.Tenants, req, resp, tenant_id,
+                               ignore_tenant=True)
         else:
             raise exceptions.HTTPNotFound("Not Found", "Tenant not specified")

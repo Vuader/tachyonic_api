@@ -6,12 +6,14 @@ import json
 import datetime
 
 from tachyonic import app
+from tachyonic.neutrino.mysql import Mysql
 from tachyonic import router
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino import exceptions
 from tachyonic.common.driver import get_driver
+from tachyonic.common.models import tenants
 
-from tachyonic.api import tenant
+from tachyonic.api.api import orm as orm_api
 
 log = logging.getLogger(__name__)
 
@@ -41,90 +43,25 @@ class Tenants(object):
                    'tenants:admin')
 
     def get(self, req, resp, tenant_id=None):
+        # TODO DRIVER CALLBACK LINK
         driver = req.config.get('tenant').get('driver')
         driver = get_driver(driver)()
-
-        domain_id = req.context.get('domain_id')
-        if domain_id is None:
-            raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
-        start = req.headers.get('X-Pager-Start')
-        limit = req.headers.get('X-Pager-Limit')
-        order = req.headers.get('X-Order-By')
-        search = req.headers.get('X-Search')
-
-        records, data = driver.retrieve(domain_id, tenant_id,
-                                        search, order, start, limit)
-        for d in data:
-            if 'external_id' in d:
-                d['id'] = tenant.get_local_id(domain_id, d['external_id'])
-
-        resp.headers['X-Total-Rows'] = records
-        resp.headers['X-Filtered-Rows'] = records
-
-        for row in data:
-            for key in row:
-                if isinstance(row[key],datetime.datetime):
-                    row[key] = row[key].strftime("%Y/%m/%d %H:%M:%S")
-                if key == "enabled":
-                    if row[key] == 0:
-                        row[key] = False
-                    elif row[key] == 1:
-                        row[key] = True
-
-
-        if tenant_id is not None:
-            if len(data) == 1:
-                data = data[0]
-                return json.dumps(data, indent=4)
-            else:
-                raise exceptions.HTTPNotFound("Not Found", "Tenant not found")
-        else:
-            return json.dumps(data, indent=4)
+        return orm_api.get(tenants.Tenants, req, resp, tenant_id)
 
     def post(self, req, resp):
+        # TODO DRIVER CALLBACK LINK
         driver = req.config.get('tenant').get('driver')
         driver = get_driver(driver)()
-        obj = json.loads(req.read())
-        domain_id = req.context.get('domain_id')
-        if domain_id is None:
-            raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
-        if 'id' in obj:
-            del obj['id']
-        obj['domain_id'] = domain_id
-        result = driver.create(obj)
-        if 'id' in result:
-            tenant_id = result['id']
-        elif 'external_id' in result:
-            external_id = result['external_id']
-            tenant_id = tenant.get_local_id(domain_id, external_id)
-        else:
-            pass
-        result['domain_id'] = domain_id
-        result['id'] = tenant_id
-        return json.dumps(result, indent=4)
+        return orm_api.post(tenants.Tenant, req, resp)
 
     def put(self, req, resp, tenant_id):
+        # TODO DRIVER CALLBACK LINK
         driver = req.config.get('tenant').get('driver')
         driver = get_driver(driver)()
-        obj = json.loads(req.read())
-        domain_id = req.context.get('domain_id')
-        if domain_id is None:
-            raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
-        obj['domain_id'] = domain_id
-        external_id = tenant.get_external_id(tenant_id)
-        result = driver.update(external_id, obj)
-        result['domain_id'] = domain_id
-        result['id'] = tenant_id
-        return json.dumps(result, indent=4)
+        return orm_api.put(tenants.Tenant, req, tenant_id)
 
     def delete(self, req, resp, tenant_id):
+        # TODO DRIVER CALLBACK LINK
         driver = req.config.get('tenant').get('driver')
         driver = get_driver(driver)()
-        domain_id = req.context.get('domain_id')
-        if domain_id is None:
-            raise exceptions.HTTPForbidden("Access Forbidden", "Require domain!")
-        result = driver.delete(domain_id, tenant_id)
-        if result is True:
-            return "{\"action\": \"success\"}"
-        else:
-            raise exceptions.HTTPNotFound("Not Found", "Object not found")
+        return orm_api.delete(tenants.Tenant, req, tenant_id)

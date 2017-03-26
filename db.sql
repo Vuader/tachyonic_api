@@ -1,4 +1,3 @@
-SET FOREIGN_KEY_CHECKS = 0;
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
 /*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
@@ -9,6 +8,53 @@ SET FOREIGN_KEY_CHECKS = 0;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `themes`
+--
+
+DROP TABLE IF EXISTS `theme`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `theme` (
+  `id` varchar(36) NOT NULL,
+  `tenant_id` varchar(36) DEFAULT NULL,
+  `domain_id` varchar(36) NOT NULL,
+  `domain` varchar(64) NOT NULL,
+  `name` varchar(64) NOT NULL,
+  `logo` longblob NULL,
+  `logo_name` varchar(128) NOT NULL DEFAULT '',
+  `logo_type` varchar(128) NOT NULL DEFAULT '',
+  `logo_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `background` longblob NULL,
+  `background_name` varchar(128) NOT NULL DEFAULT '',
+  `background_type` varchar(128) NOT NULL DEFAULT '',
+  `background_timestamp` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `creation_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `domain_name` (`domain`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `css`
+--
+
+DROP TABLE IF EXISTS `css`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `css` (
+  `id` varchar(36) NOT NULL,
+  `theme_id` varchar(36) NOT NULL,
+  `element` varchar(64) NOT NULL,
+  `property` varchar(64) NOT NULL,
+  `value` varchar(64) NOT NULL,
+  `creation_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `item` (`theme_id`,`element`,`property`),
+  CONSTRAINT `css_ibfk_1` FOREIGN KEY (`theme_id`) REFERENCES `theme` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `domain`
@@ -50,6 +96,7 @@ CREATE TABLE `role` (
   `name` varchar(64) NOT NULL,
   `description` varchar(128) DEFAULT NULL,
   `creation_time` datetime DEFAULT CURRENT_TIMESTAMP,
+  `root` enum('False','True') DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `role` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -61,7 +108,13 @@ CREATE TABLE `role` (
 
 LOCK TABLES `role` WRITE;
 /*!40000 ALTER TABLE `role` DISABLE KEYS */;
-INSERT INTO `role` VALUES ('766E2877-0E06-440A-8E02-E09988FC21A7','Root',NULL,'2017-03-18 19:12:18'),('8dd372aa-edc4-11e6-86e1-14109fe59f3f','Operations',NULL,'2017-03-18 19:12:18'),('9cd65b14-edc4-11e6-86e1-14109fe59f3f','Administrator',NULL,'2017-03-18 19:12:18'),('a525e582-edc4-11e6-86e1-14109fe59f3f','AccountManager',NULL,'2017-03-18 19:12:18'),('b7706e6a-edc4-11e6-86e1-14109fe59f3f','Billing',NULL,'2017-03-18 19:12:18'),('bced7216-edc4-11e6-86e1-14109fe59f3f','Customer',NULL,'2017-03-18 19:12:18'),('F4FA990F-8D08-41C4-A927-4B08D86374A0','Support',NULL,'2017-03-18 19:12:18');
+INSERT INTO `role` VALUES ('766E2877-0E06-440A-8E02-E09988FC21A7','Root',NULL,'2017-03-18 19:12:18','True');
+INSERT INTO `role` VALUES ('8dd372aa-edc4-11e6-86e1-14109fe59f3f','Operations',NULL,'2017-03-18 19:12:18','False');
+INSERT INTO `role` VALUES ('9cd65b14-edc4-11e6-86e1-14109fe59f3f','Administrator',NULL,'2017-03-18 19:12:18','False');
+INSERT INTO `role` VALUES ('a525e582-edc4-11e6-86e1-14109fe59f3f','Account Manager',NULL,'2017-03-18 19:12:18','False');
+INSERT INTO `role` VALUES ('b7706e6a-edc4-11e6-86e1-14109fe59f3f','Billing',NULL,'2017-03-18 19:12:18','False');
+INSERT INTO `role` VALUES ('bced7216-edc4-11e6-86e1-14109fe59f3f','Customer',NULL,'2017-03-18 19:12:18','False');
+INSERT INTO `role` VALUES ('F4FA990F-8D08-41C4-A927-4B08D86374A0','Support',NULL,'2017-03-18 19:12:18','False');
 /*!40000 ALTER TABLE `role` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -74,7 +127,7 @@ DROP TABLE IF EXISTS `tenant`;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `tenant` (
   `id` varchar(36) NOT NULL,
-  `parent_id` varchar(36) DEFAULT NULL,
+  `tenant_id` varchar(36) DEFAULT NULL,
   `domain_id` varchar(36) NOT NULL,
   `external_id` varchar(36) DEFAULT NULL,
   `tenant_type` enum('individual','organization') NOT NULL DEFAULT 'individual',
@@ -110,20 +163,11 @@ CREATE TABLE `tenant` (
   `creation_time` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `tenant_unique` (`domain_id`,`external_id`,`name`),
-  KEY `parent_id` (`parent_id`),
-  CONSTRAINT `tenant_ibfk_1` FOREIGN KEY (`parent_id`) REFERENCES `tenant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  KEY `tenant_id` (`tenant_id`),
+  CONSTRAINT `tenant_ibfk_1` FOREIGN KEY (`tenant_id`) REFERENCES `tenant` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `tenant_ibfk_2` FOREIGN KEY (`domain_id`) REFERENCES `domain` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `tenant`
---
-
-LOCK TABLES `tenant` WRITE;
-/*!40000 ALTER TABLE `tenant` DISABLE KEYS */;
-/*!40000 ALTER TABLE `tenant` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `token`
@@ -143,15 +187,6 @@ CREATE TABLE `token` (
   CONSTRAINT `token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `token`
---
-
-LOCK TABLES `token` WRITE;
-/*!40000 ALTER TABLE `token` DISABLE KEYS */;
-/*!40000 ALTER TABLE `token` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `user`
@@ -193,7 +228,7 @@ CREATE TABLE `user` (
 
 LOCK TABLES `user` WRITE;
 /*!40000 ALTER TABLE `user` DISABLE KEYS */;
-INSERT INTO `user` VALUES ('C0418B28-CCAE-459E-8882-568F433C46FB','3AF4FA64-9AFE-4481-8BB6-24F246599BF3',NULL,NULL,'root','$2b$15$Ij1uoXuF3ZAuxpg6WNZ5RuPPqcKMA80Vs7ELjzF0m/WcxQNrl4ezq','root@example.com','Root',NULL,NULL,NULL,NULL,NULL,NULL,1,'2017-03-18 19:12:18');
+INSERT INTO `user` VALUES ('C0418B28-CCAE-459E-8882-568F433C46FB','3AF4FA64-9AFE-4481-8BB6-24F246599BF3',NULL,NULL,'root','$2b$15$Ij1uoXuF3ZAuxpg6WNZ5RuPPqcKMA80Vs7ELjzF0m/WcxQNrl4ezq','root@example.com','Root',NULL,NULL,NULL,NULL,NULL,'2017-03-25 18:26:30',1,'2017-03-18 19:12:18');
 /*!40000 ALTER TABLE `user` ENABLE KEYS */;
 UNLOCK TABLES;
 

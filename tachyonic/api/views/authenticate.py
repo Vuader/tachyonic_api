@@ -50,7 +50,7 @@ class Authenticate(object):
         if 'user_id' in req.context:
             db = Mysql()
             sql = "SELECT * FROM user"
-            sql += " WHERE id = %s"
+            sql += " WHERE id = %s and enabled = 1"
             result = db.execute(sql, (req.context['user_id'],))
             db.commit()
             if len(result) == 1:
@@ -64,6 +64,8 @@ class Authenticate(object):
                 creds['expire'] = token_result[0]['token_expire'].strftime("%Y/%m/%d %H:%M:%S")
                 creds['roles'] = auth.get_user_roles(user_id)
                 return json.dumps(creds, indent=4)
+            else:
+                return "{}"
         else:
             return "{}"
 

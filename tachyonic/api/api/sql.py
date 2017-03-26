@@ -41,7 +41,7 @@ class LeftJoin():
         self.where = where
 
 
-def sql_get_query(table, req, resp, id, where=None,
+def get_query(table, req, resp, id, where=None,
                   where_values=None, left_join=None,
                   ignore_tenant=False):
     db = Mysql()
@@ -210,15 +210,15 @@ def sql_get_query(table, req, resp, id, where=None,
     return result
 
 
-def sql_get(table, req, resp, id, where=None, where_values=None,
-            left_join=None, ignore_tenant=False):
-    result = sql_get_query(table,
-                           req,
-                           resp,
-                           id,
-                           where=None,
-                           where_values=None,
-                           left_join=left_join)
+def get(table, req, resp, id, where=None, where_values=None,
+        left_join=None, ignore_tenant=False):
+    result = get_query(table,
+                       req,
+                       resp,
+                       id,
+                       where=None,
+                       where_values=None,
+                       left_join=left_join)
 
     if id is not None:
         if len(result) == 1:
