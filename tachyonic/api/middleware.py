@@ -22,6 +22,8 @@ class Token(object):
         req.context['tenant_id'] = None
         req.context['domain_admin'] = False
         req.context['domain_id'] = None
+        req.context['domain'] = None
+        req.context['is_root'] = False
         req.context['login'] = False
         req.context['token'] = None
         req.context['expire'] = None
@@ -44,6 +46,12 @@ class Token(object):
             if len(result) > 0:
                 user_id = result[0]['user_id']
                 req.context['user_id'] = user_id
+                if not auth.is_user_enabled(user_id):
+                    raise exceptions.HTTPError(const.HTTP_404, 'Authentication failed',
+                                        'User Account suspended')
+                if not auth.is_user_tenant_enabled(user_id):
+                    raise exceptions.HTTPError(const.HTTP_404, 'Authentication failed',
+                                        'Tenant Account suspended')
                 req.context['token'] = token
 
                 roles = auth.get_user_roles(user_id)
@@ -60,6 +68,7 @@ class Token(object):
 
             if auth.authenticate_user_domain(user_id, domain_id):
                 req.context['domain_id'] = domain_id
+                req.context['domain_name'] = auth.get_domain_name(domain_id)
                 req.context['domain_admin'] = auth.get_user_domain_admin(user_id,
                                                                     domain_id)
                 if req.context['domain_admin'] is True:
@@ -81,3 +90,6 @@ class Token(object):
                             role['tenant_id'] == tenant_id):
                         role_name = auth.get_role_name(role['role_id'])
                         req.context['roles'].append(role_name)
+                        if ('is_root' in role and
+                                role['is_root'] is True):
+                            req.context['is_root'] = True
