@@ -10,7 +10,18 @@ from tachyonic.neutrino import exceptions
 
 from tachyonic.api.mysql import Mysql
 
+from datetime import datetime
+
 log = logging.getLogger(__name__)
+
+
+def json_serial(obj):
+    """JSON serializer for objects not serializable by default json code"""
+
+    if isinstance(obj, datetime):
+        serial = obj.isoformat()
+        return serial
+    raise exceptions.HTTPInvalidParam("Type not serializable")
 
 
 def table_has_col(table, column):
@@ -35,10 +46,9 @@ def parse_body(body, domain, domain_id, tenant, tenant_id):
 
 
 class LeftJoin():
-    def __init__(self, additional_select, ljo, where=None):
+    def __init__(self, additional_select, ljo):
         self.additional_select = additional_select
         self.ljo = ljo
-        self.where = where
 
 
 def get_query(table, req, resp, id, where=None,
@@ -89,7 +99,10 @@ def get_query(table, req, resp, id, where=None,
 
     if domain_id is not None:
         if domain_field is True:
-            sql_where.append("domain_id = %s")
+            if left_join is None:
+                sql_where.append("domain_id = %s")
+            else:
+                sql_where.append(table + ".domain_id = %s")
             sql_values.append(domain_id)
     else:
         if domain_field is True:
@@ -97,7 +110,6 @@ def get_query(table, req, resp, id, where=None,
 
     sql_search_where = []
     if search is not None:
-        #search = "%s%s" % (search,'%')
         for field in fields:
             if 'char' in fields[field]:
                 sql_search_where.append("%s like %s" % (field, '%s'))
@@ -123,7 +135,10 @@ def get_query(table, req, resp, id, where=None,
                     raise exceptions.HTTPForbidden("Access Forbidden", "Not within tenant!")
 
     if where is not None:
-        sql_where.append(where)
+        if type(where) is str:
+            sql_where.append(where + " = %s")
+        elif type(where) is list:
+            sql_where.extend([w + " = %s" for w in where])
     if where_values is not None:
         sql_values.extend(where_values)
 
@@ -186,7 +201,7 @@ def get_query(table, req, resp, id, where=None,
             sql_count.append('LEFT JOIN')
             sql_count.append(k)
             sql_count.append('ON')
-            for i,o in enumerate(left_join.ljo[k]):
+            for i, o in enumerate(left_join.ljo[k]):
                 if i > 0:
                     sql_query.append('AND')
                     sql_count.append('AND')
@@ -216,14 +231,14 @@ def get(table, req, resp, id, where=None, where_values=None,
                        req,
                        resp,
                        id,
-                       where=None,
-                       where_values=None,
+                       where=where,
+                       where_values=where_values,
                        left_join=left_join)
 
     if id is not None:
         if len(result) == 1:
-            return json.dumps(result[0], indent=4)
+            return json.dumps(result[0], indent=4, default=json_serial)
         else:
             raise exceptions.HTTPNotFound("Not Found", "Object not found")
     else:
-        return json.dumps(result, indent=4)
+        return json.dumps(result, indent=4, default=json_serial)
