@@ -136,7 +136,10 @@ def get_query(table, req, resp, id, where=None,
 
     if where is not None:
         if type(where) is str:
-            sql_where.append(where + " = %s")
+            if re.search('%',where):
+                sql_where.append(where)
+            else:
+                sql_where.append(where + " = %s")
         elif type(where) is list:
             sql_where.extend([w + " = %s" for w in where])
     if where_values is not None:
