@@ -223,18 +223,19 @@ class Themes(object):
                     element, property, value = i
                     if element != '':
                         if property != '':
-                            if value != '':
-                                sql = "INSERT INTO css"
-                                sql += " (id, theme_id, element, property, value)"
-                                sql += " VALUES"
-                                sql += " (uuid(), %s,%s,%s,%s)"
-                                sql += " ON DUPLICATE KEY UPDATE"
-                                sql += " value=%s"
-                                db.execute(sql, (domain_id,
-                                                 element,
-                                                 property,
-                                                 value,
-                                                 value))
+                            if value == '':
+                                value = "NULL"
+                            sql = "INSERT INTO css"
+                            sql += " (id, theme_id, element, property, value)"
+                            sql += " VALUES"
+                            sql += " (uuid(), %s,%s,%s,%s)"
+                            sql += " ON DUPLICATE KEY UPDATE"
+                            sql += " value=%s"
+                            db.execute(sql, (domain_id,
+                                             element,
+                                             property,
+                                             value,
+                                             value))
             db.commit()
 
     def get(self, req, resp, domain_id=None):

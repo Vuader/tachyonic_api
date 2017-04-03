@@ -14,7 +14,7 @@ log = logging.getLogger(__name__)
 
 class MysqlDriver(object):
     # Mandotory return true or false
-    def authenticate(self, user_id, username, password):
+    def authenticate(self, user_id, username, password, context):
         db = Mysql()
         sql = "SELECT * FROM user"
         sql += " WHERE id = %s"

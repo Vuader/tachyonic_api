@@ -182,6 +182,7 @@ CREATE TABLE `token` (
   `token` varchar(255) NOT NULL DEFAULT '',
   `token_expire` datetime DEFAULT NULL,
   `otp` varchar(255) DEFAULT NULL,
+  `extra` longtext,
   PRIMARY KEY (`id`),
   KEY `user_id` (`user_id`),
   CONSTRAINT `token_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
