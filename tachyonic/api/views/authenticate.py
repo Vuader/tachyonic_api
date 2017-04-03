@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import logging
 import json
+from collections import OrderedDict
 
 from tachyonic import app
 from tachyonic import router
@@ -23,18 +24,18 @@ class Authenticate(object):
         router.add(const.HTTP_POST, '/v1/token', self.post, 'tachyonic:public')
         router.add(const.HTTP_GET, '/v1/token', self.get, 'tachyonic:public')
 
-    def _new_token(self, user_id, expire=1):
+    def _new_token(self, user_id, expire=1, extra=None):
         db = Mysql()
         token_id = random_id(64)
-
+        extra = json.dumps(extra)
         db.execute("UPDATE user set last_login = now()" +
                    "  WHERE id = %s", (user_id,))
 
         db.execute("INSERT INTO token" +
-                   " (id,user_id,token,token_expire)" +
+                   " (id,user_id,token,token_expire,extra)" +
                    " VALUES (uuid(),%s, %s, DATE_ADD(NOW()" +
-                   ", INTERVAL %s HOUR))",
-                   (user_id, token_id, expire))
+                   ", INTERVAL %s HOUR), %s)",
+                   (user_id, token_id, expire, extra))
 
         result = db.execute("SELECT token_expire" +
                             " FROM token WHERE token = %s",
@@ -54,7 +55,7 @@ class Authenticate(object):
             result = db.execute(sql, (req.context['user_id'],))
             db.commit()
             if len(result) == 1:
-                creds = {}
+                creds = OrderedDict()
                 user_id = result[0]['id']
                 creds['username'] = result[0]['username']
                 creds['email'] = result[0]['email']
@@ -63,6 +64,8 @@ class Authenticate(object):
                 token_result = db.execute(sql, (req.context['token'],))
                 creds['expire'] = token_result[0]['token_expire'].strftime("%Y/%m/%d %H:%M:%S")
                 creds['roles'] = auth.get_user_roles(user_id)
+                creds['roles'] = auth.get_user_roles(user_id)
+                creds['extra'] = req.context['extra']
                 return json.dumps(creds, indent=4)
             else:
                 return "{}"
@@ -84,11 +87,12 @@ class Authenticate(object):
         db.commit()
         driver = req.config.get('authentication').get('driver')
         driver = get_driver(driver)()
+        extra = OrderedDict()
         if len(result) == 1:
             user_id = result[0]['id']
         else:
             user_id = None
-        if driver.authenticate(user_id, usern, passw):
+        if driver.authenticate(user_id, usern, passw, extra):
             if user_id is None:
                 sql = "INSERT INTO user"
                 sql += " (id, username, domain_id)"
@@ -103,13 +107,14 @@ class Authenticate(object):
                 username = result[0]['username']
                 email = result[0]['email']
 
-            creds = {}
+            creds = OrderedDict()
             creds['username'] = username
             creds['email'] = email
-            token, expire = self._new_token(result[0]['id'])
+            token, expire = self._new_token(result[0]['id'], extra=extra)
             creds['token'] = token
             creds['expire'] = expire.strftime("%Y/%m/%d %H:%M:%S")
             creds['roles'] = auth.get_user_roles(user_id)
+            creds['extra'] = extra
             return json.dumps(creds, indent=4)
         else:
             raise exceptions.HTTPError(const.HTTP_404, 'Authentication failed',

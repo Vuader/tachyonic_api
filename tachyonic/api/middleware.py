@@ -45,6 +45,7 @@ class Token(object):
             db.commit()
             if len(result) > 0:
                 user_id = result[0]['user_id']
+                req.context['extra'] = result[0]['extra']
                 req.context['user_id'] = user_id
                 if not auth.is_user_enabled(user_id):
                     raise exceptions.HTTPError(const.HTTP_404, 'Authentication failed',
