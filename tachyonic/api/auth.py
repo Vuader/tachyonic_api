@@ -2,15 +2,16 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import logging
+import uuid
 from collections import OrderedDict
 
+from tachyonic import app
 from tachyonic.neutrino.mysql import Mysql
 from tachyonic.neutrino.password import valid as is_valid_password
 from tachyonic.neutrino.password import hash as hash_password
 from tachyonic.neutrino import exceptions
 
 log = logging.getLogger(__name__)
-
 
 class MysqlDriver(object):
     # Mandotory return true or false
@@ -147,6 +148,17 @@ def get_tenant_name(tenant):
     else:
         return None
 
+
+def get_external_id(tenant):
+    db = Mysql()
+    result = db.execute("SELECT external_id FROM tenant" +
+                        " WHERE id = %s OR name = %s",
+                        (tenant, tenant))
+    db.commit()
+    if len(result) > 0:
+        return result[0]['external_id']
+    else:
+        raise exceptions.HTTPNotFound("Tenant not found: %s" % (tenant,))
 
 def get_tenant_id(tenant):
     db = Mysql()
@@ -303,5 +315,4 @@ def get_lastlogin(username):
         return result[0]['last_login']
     else:
         return None
-
 

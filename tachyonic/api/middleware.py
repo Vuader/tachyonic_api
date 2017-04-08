@@ -2,10 +2,12 @@ from __future__ import absolute_import
 from __future__ import unicode_literals
 
 import logging
+import json
 
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino.mysql import Mysql
 from tachyonic.neutrino import exceptions
+from tachyonic.neutrino.ossdk import Openstack
 
 from tachyonic.api import auth
 
@@ -20,14 +22,17 @@ class Token(object):
         domain_id = auth.get_domain_id(domain)
 
         req.context['tenant_id'] = None
+        req.context['external_id'] = None
         req.context['domain_admin'] = False
         req.context['domain_id'] = None
         req.context['domain'] = None
         req.context['is_root'] = False
         req.context['login'] = False
+        req.context['user_id'] = None
         req.context['token'] = None
         req.context['expire'] = None
         req.context['roles'] = []
+        req.context['extra'] = {}
 
         resp.headers['Content-Type'] = const.APPLICATION_JSON
         token = req.headers.get('X-Auth-Token')
@@ -45,7 +50,7 @@ class Token(object):
             db.commit()
             if len(result) > 0:
                 user_id = result[0]['user_id']
-                req.context['extra'] = result[0]['extra']
+                req.context['extra'] = json.loads(result[0]['extra'])
                 req.context['user_id'] = user_id
                 if not auth.is_user_enabled(user_id):
                     raise exceptions.HTTPError(const.HTTP_404, 'Authentication failed',
@@ -94,3 +99,7 @@ class Token(object):
                         if ('is_root' in role and
                                 role['is_root'] is True):
                             req.context['is_root'] = True
+
+            if tenant_id is not None:
+                req.context['external_id'] = auth.get_external_id(tenant_id)
+

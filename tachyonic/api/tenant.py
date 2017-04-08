@@ -66,7 +66,7 @@ class MysqlDriver(object):
         db = Mysql()
         sql_values = []
         sql_where = []
-        sql_where.append("tenant_id = %s")
+        sql_where.append("external_id = %s")
         sql_values.append(external_id)
 
         sql_where.append("domain_id = %s")

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 import logging
 import json
+import uuid
 from collections import OrderedDict
 
 from tachyonic import app
@@ -66,6 +67,8 @@ class Authenticate(object):
                 creds['roles'] = auth.get_user_roles(user_id)
                 creds['roles'] = auth.get_user_roles(user_id)
                 creds['extra'] = req.context['extra']
+                creds['tenant_id'] = req.context['tenant_id']
+                creds['external_id'] = req.context['external_id']
                 return json.dumps(creds, indent=4)
             else:
                 return "{}"
@@ -94,23 +97,24 @@ class Authenticate(object):
             user_id = None
         if driver.authenticate(user_id, usern, passw, extra):
             if user_id is None:
+                user_id = str(uuid.uuid4())
                 sql = "INSERT INTO user"
                 sql += " (id, username, domain_id)"
                 sql += " VALUES"
-                sql += " (uuid(), %s, %s)"
-                db.execute(sql, (usern, domain_id))
-                user_id = db.last_row_id()
+                sql += " (%s, %s, %s)"
+                db.execute(sql, (user_id, usern, domain_id))
                 db.commit()
                 username = usern
                 email = None
             else:
                 username = result[0]['username']
                 email = result[0]['email']
-
+            if hasattr(driver, 'assignments'):
+                driver.assignments(user_id, domain_id)
             creds = OrderedDict()
             creds['username'] = username
             creds['email'] = email
-            token, expire = self._new_token(result[0]['id'], extra=extra)
+            token, expire = self._new_token(user_id, extra=extra)
             creds['token'] = token
             creds['expire'] = expire.strftime("%Y/%m/%d %H:%M:%S")
             creds['roles'] = auth.get_user_roles(user_id)
