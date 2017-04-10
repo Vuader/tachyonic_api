@@ -7,7 +7,6 @@ import json
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino.mysql import Mysql
 from tachyonic.neutrino import exceptions
-from tachyonic.neutrino.ossdk import Openstack
 
 from tachyonic.api import auth
 
