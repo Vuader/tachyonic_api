@@ -8,9 +8,9 @@ import copy
 
 from tachyonic import app
 from tachyonic import router
-from tachyonic.neutrino import constants as const
-from tachyonic.neutrino import exceptions
-from tachyonic.common.driver import get_driver
+from tachyonic.common import constants as const
+from tachyonic.common import exceptions
+from tachyonic.common.imports import get_class
 from tachyonic.api.api import sql
 
 from tachyonic.api import tenant
@@ -28,7 +28,7 @@ class Search(object):
 
     def get(self, req, resp):
         driver = req.config.get('tenant').get('driver')
-        driver = get_driver(driver)()
+        driver = get_class(driver)()
 
         domain_id = req.context.get('domain_id')
 

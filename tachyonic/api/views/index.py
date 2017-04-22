@@ -6,7 +6,7 @@ import json
 
 from tachyonic import router
 from tachyonic import app
-from tachyonic.neutrino import constants as const
+from tachyonic.common import constants as const
 
 log = logging.getLogger(__name__)
 

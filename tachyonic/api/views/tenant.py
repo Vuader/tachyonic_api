@@ -7,10 +7,10 @@ import datetime
 
 from tachyonic import app
 from tachyonic import router
-from tachyonic.neutrino import constants as const
-from tachyonic.neutrino import exceptions
-from tachyonic.common.driver import get_driver
-from tachyonic.common.models import tenants
+from tachyonic.common import constants as const
+from tachyonic.common import exceptions
+from tachyonic.common.imports import get_class
+from tachyonic.api.models import tenants
 
 from tachyonic.api.api import orm as orm_api
 
@@ -30,7 +30,7 @@ class Tenant(object):
         if tenant_id is not None:
             # TODO DRIVER CALLBACK LINK
             driver = req.config.get('tenant').get('driver')
-            driver = get_driver(driver)()
+            driver = get_class(driver)()
             return orm_api.get(tenants.Tenants, req, resp, tenant_id,
                                ignore_tenant=True)
         else:

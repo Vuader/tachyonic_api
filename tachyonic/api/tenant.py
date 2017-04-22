@@ -6,7 +6,7 @@ import re
 import logging
 
 from tachyonic.api.mysql import Mysql
-from tachyonic.neutrino import exceptions
+from tachyonic.common import exceptions
 
 log = logging.getLogger(__name__)
 
