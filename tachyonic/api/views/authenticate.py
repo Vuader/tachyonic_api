@@ -8,11 +8,11 @@ from collections import OrderedDict
 
 from tachyonic import app
 from tachyonic import router
-from tachyonic.neutrino import constants as const
+from tachyonic.common import constants as const
 from tachyonic.neutrino.mysql import Mysql
-from tachyonic.neutrino import exceptions
-from tachyonic.neutrino.utils.general import random_id
-from tachyonic.common.driver import get_driver
+from tachyonic.common import exceptions
+from tachyonic.common.ids import random_id
+from tachyonic.common.imports import get_class
 
 from tachyonic.api import auth
 
@@ -89,7 +89,7 @@ class Authenticate(object):
         result = db.execute(sql, (usern, domain_id))
         db.commit()
         driver = req.config.get('authentication').get('driver')
-        driver = get_driver(driver)()
+        driver = get_class(driver)()
         extra = OrderedDict()
         if len(result) == 1:
             user_id = result[0]['id']

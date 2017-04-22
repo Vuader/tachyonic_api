@@ -6,7 +6,7 @@ import json
 import re
 import uuid
 
-from tachyonic.neutrino import exceptions
+from tachyonic.common import exceptions
 
 from tachyonic.api.mysql import Mysql
 
@@ -167,7 +167,7 @@ def get_query(table, req, resp, id, where=None,
                 if left_join is None:
                     raise exceptions.HTTPInvalidParam(order_field)
                 elif order_field not in left_join.additional_select.values():
-                    raise exceptions.neutrino.HTTPInvalidParam(order_field)
+                    raise exceptions.HTTPInvalidParam(order_field)
             order_type = "asc"
             if len(order_options) == 2:
                 order_type = order_options[1].lower()

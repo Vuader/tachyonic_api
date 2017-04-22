@@ -5,8 +5,8 @@ import logging
 
 from tachyonic import app
 from tachyonic import router
-from tachyonic.neutrino import constants as const
-from tachyonic.common.models import domains
+from tachyonic.common import constants as const
+from tachyonic.api.models import domains
 
 from tachyonic.api.api import orm as api
 

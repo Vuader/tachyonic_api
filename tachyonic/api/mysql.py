@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 
 import pymysql as MySQLdb
 from tachyonic.neutrino.mysql import Mysql as NfwMysql
-from tachyonic.neutrino import exceptions
+from tachyonic.common import exceptions
 
 
 class Mysql(object):

@@ -9,7 +9,7 @@ from tachyonic import app
 from tachyonic.neutrino.mysql import Mysql
 from tachyonic.neutrino.password import valid as is_valid_password
 from tachyonic.neutrino.password import hash as hash_password
-from tachyonic.neutrino import exceptions
+from tachyonic.common import exceptions
 
 log = logging.getLogger(__name__)
 
