@@ -27,7 +27,7 @@ class Search(object):
                    'tachyonic:login')
 
     def get(self, req, resp):
-        driver = req.config.get('tenant').get('driver')
+        driver = req.config.get('tenants').get('driver')
         driver = get_class(driver)()
 
         domain_id = req.context.get('domain_id')

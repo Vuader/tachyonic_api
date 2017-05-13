@@ -7,6 +7,7 @@ from tachyonic import app
 from tachyonic import router
 from tachyonic.common import constants as const
 from tachyonic.api.models import users
+from tachyonic.api.validate import enabled
 from tachyonic.common.imports import get_class
 
 from tachyonic.api.api import orm as api
@@ -42,12 +43,14 @@ class Users(object):
         return api.get(users.Users, req, resp, id)
 
     def post(self, req, resp):
+        enabled('create', app.config.get('users'))
         driver = req.config.get('authentication').get('driver')
         driver = get_class(driver)()
         return api.post(users.User, req,
                         callback=driver.create)
 
     def put(self, req, resp, id):
+        enabled('update', app.config.get('users'))
         driver = req.config.get('authentication').get('driver')
         driver = get_class(driver)()
         response = api.put(users.User, req, id,
@@ -55,6 +58,7 @@ class Users(object):
         return response
 
     def delete(self, req, resp, id):
+        enabled('update', app.config.get('users'))
         driver = req.config.get('authentication').get('driver')
         driver = get_class(driver)()
         return api.delete(users.User, req, id,
