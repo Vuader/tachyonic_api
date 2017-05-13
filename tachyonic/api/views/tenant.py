@@ -29,7 +29,7 @@ class Tenant(object):
         tenant_id = req.context['tenant_id']
         if tenant_id is not None:
             # TODO DRIVER CALLBACK LINK
-            driver = req.config.get('tenant').get('driver')
+            driver = req.config.get('tenants').get('driver')
             driver = get_class(driver)()
             return orm_api.get(tenants.Tenants, req, resp, tenant_id,
                                ignore_tenant=True)
