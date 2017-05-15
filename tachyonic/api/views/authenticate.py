@@ -88,7 +88,7 @@ class Authenticate(object):
         sql += " WHERE username = %s and domain_id = %s"
         result = db.execute(sql, (usern, domain_id))
         db.commit()
-        driver = req.config.get('authentication').get('driver')
+        driver = req.config.get('users').get('driver')
         driver = get_class(driver)()
         extra = OrderedDict()
         if len(result) == 1:

@@ -44,14 +44,14 @@ class Users(object):
 
     def post(self, req, resp):
         enabled('create', app.config.get('users'))
-        driver = req.config.get('authentication').get('driver')
+        driver = req.config.get('users').get('driver')
         driver = get_class(driver)()
         return api.post(users.User, req,
                         callback=driver.create)
 
     def put(self, req, resp, id):
         enabled('update', app.config.get('users'))
-        driver = req.config.get('authentication').get('driver')
+        driver = req.config.get('users').get('driver')
         driver = get_class(driver)()
         response = api.put(users.User, req, id,
                            callback=driver.password)
@@ -59,7 +59,7 @@ class Users(object):
 
     def delete(self, req, resp, id):
         enabled('update', app.config.get('users'))
-        driver = req.config.get('authentication').get('driver')
+        driver = req.config.get('users').get('driver')
         driver = get_class(driver)()
         return api.delete(users.User, req, id,
                           callback=driver.delete)
