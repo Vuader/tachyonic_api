@@ -53,7 +53,8 @@ class LeftJoin():
 
 def get_query(table, req, resp, id, where=None,
                   where_values=None, left_join=None,
-                  ignore_tenant=False):
+                  ignore_tenant=False,
+                  where_null=[]):
     db = Mysql()
 
     tables = set([ table ])
@@ -145,6 +146,8 @@ def get_query(table, req, resp, id, where=None,
     if where_values is not None:
         sql_values.extend(where_values)
 
+    sql_where.extend([wn + ' is NULL' for wn in where_null])
+
     sql_where_string = " and ".join(sql_where)
 
     sql_pager = ""
@@ -229,13 +232,14 @@ def get_query(table, req, resp, id, where=None,
 
 
 def get(table, req, resp, id, where=None, where_values=None,
-        left_join=None, ignore_tenant=False):
+        where_null=None, left_join=None, ignore_tenant=False):
     result = get_query(table,
                        req,
                        resp,
                        id,
                        where=where,
                        where_values=where_values,
+                       where_null=where_null,
                        left_join=left_join)
 
     if id is not None:
