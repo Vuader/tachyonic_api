@@ -232,7 +232,7 @@ def get_query(table, req, resp, id, where=None,
 
 
 def get(table, req, resp, id, where=None, where_values=None,
-        where_null=None, left_join=None, ignore_tenant=False):
+        where_null=[], left_join=None, ignore_tenant=False):
     result = get_query(table,
                        req,
                        resp,
