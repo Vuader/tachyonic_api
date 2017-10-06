@@ -27,7 +27,7 @@ class Themes(object):
                    self.get,
                    'tachyonic:public')
         router.add(const.HTTP_GET,
-                   '/v1/theme/{domain_id}',
+                   '/v1/theme/{domain}',
                    self.get,
                    'tachyonic:public')
         router.add(const.HTTP_GET,
@@ -59,11 +59,11 @@ class Themes(object):
                    self.post,
                    'themes:admin')
         router.add(const.HTTP_PUT,
-                   '/v1/theme/{domain_id}',
+                   '/v1/theme/{domain}',
                    self.put,
                    'themes:admin')
         router.add(const.HTTP_DELETE,
-                   '/v1/theme/{domain_id}',
+                   '/v1/theme/{domain}',
                    self.delete,
                    'themes:admin')
 
@@ -238,14 +238,14 @@ class Themes(object):
                                              value))
             db.commit()
 
-    def get(self, req, resp, domain_id=None):
-        return api.get(themes.Themes, req, resp, domain_id)
+    def get(self, req, resp, domain=None):
+        return api.get(themes.Themes, req, resp, domain)
 
     def post(self, req, resp):
         return api.post(themes.Theme, req)
 
-    def put(self, req, resp, domain_id):
-        return api.put(themes.Theme, req, domain_id)
+    def put(self, req, resp, domain):
+        return api.put(themes.Theme, req, domain)
 
-    def delete(self, req, resp, domain_id):
-        return api.delete(themes.Theme, req, domain_id)
+    def delete(self, req, resp, domain):
+        return api.delete(themes.Theme, req, domain)
