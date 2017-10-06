@@ -10,7 +10,7 @@ from tachyonic.common import constants as const
 
 log = logging.getLogger(__name__)
 
-
+# WTF ARE YOU DOING???? DUDE
 @app.resources()
 class Index(object):
     def __init__(self):
@@ -28,14 +28,11 @@ class Index(object):
             r_method, r_uri, r_obj, r_name = r
             if req.policy.validate(r_name):
                 href = "%s/%s" % (site, r_uri)
-                method = {}
-                method[r_method] = r_name
-                if href in resources:
-                    local[href]['methods'].append(method)
-                else:
+                if href not in local:
                     local[href] = {}
-                    local[href]['methods'] = []
-                    local[href]['methods'].append(method)
+                if 'methods' not in local[href]:
+                    local[href]['methods'] = {}
+                local[href]['methods'][r_method] = r_name
 
         for endpoint in app.config.getitems('endpoints'):
             name, href = endpoint
