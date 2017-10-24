@@ -1,6 +1,3 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import pymysql as MySQLdb
 from tachyonic.neutrino.mysql import Mysql as NfwMysql
 from tachyonic.common import exceptions

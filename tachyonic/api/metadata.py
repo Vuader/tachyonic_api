@@ -8,7 +8,7 @@ Information describing the project.
 package = 'tachyonic.api'
 project = "Tachyonic API"
 project_no_spaces = project.replace(' ', '')
-version = '1.0.0'
+version = '2.0.0'
 description = 'Tachyonic API'
 authors = ['Christiaan Frans Rademan', 'Allan Swanepoel', 'Dave Kruger']
 authors_string = ', '.join(authors)

@@ -1,6 +1,3 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 from tachyonic.neutrino.model import Model
 from tachyonic.neutrino.web.bootstrap3.forms import Form as Bootstrap
 
