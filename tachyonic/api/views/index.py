@@ -1,6 +1,3 @@
-from __future__ import absolute_import
-from __future__ import unicode_literals
-
 import logging
 import json
 
@@ -34,7 +31,7 @@ class Index(object):
                     local[href]['methods'] = {}
                 local[href]['methods'][r_method] = r_name
 
-        for endpoint in app.config.getitems('endpoints'):
+        for endpoint in app.config.get_items('endpoints'):
             name, href = endpoint
             external[name] = href
 
