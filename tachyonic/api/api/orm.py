@@ -152,7 +152,7 @@ def post(model, req, ignore_tenant=False, callback=None):
                 if domain_admin is False:
                     raise exceptions.HTTPForbidden("Access Forbidden", "Not within tenant!")
 
-    request_body = parse_body(req.read(),
+    request_body = parse_body(req.read().decode('utf-8'),
                               domain_field,
                               domain_id,
                               tenant_field,
