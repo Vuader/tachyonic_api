@@ -2,8 +2,9 @@ import uuid
 import re
 import logging
 
+from tachyonic.neutrino import exceptions
+
 from tachyonic.api.mysql import Mysql
-from tachyonic.common import exceptions
 
 log = logging.getLogger(__name__)
 

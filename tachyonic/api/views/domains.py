@@ -2,9 +2,9 @@ import logging
 
 from tachyonic import app
 from tachyonic import router
-from tachyonic.common import constants as const
-from tachyonic.api.models import domains
+from tachyonic.neutrino import constants as const
 
+from tachyonic.api.models import domains
 from tachyonic.api.api import orm as api
 
 log = logging.getLogger(__name__)

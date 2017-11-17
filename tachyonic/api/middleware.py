@@ -1,9 +1,9 @@
 import logging
 import json
 
-from tachyonic.common import constants as const
+from tachyonic.neutrino import constants as const
 from tachyonic.neutrino.mysql import Mysql
-from tachyonic.common import exceptions
+from tachyonic.neutrino import exceptions
 
 from tachyonic.api import auth
 
