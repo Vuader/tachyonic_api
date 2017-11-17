@@ -75,7 +75,7 @@ class Authenticate(object):
 
     def post(self, req, resp):
         db = Mysql()
-        creds = json.loads(req.read())
+        creds = json.loads(req.read().decode("utf-8"))
         usern = creds.get('username', '')
         passw = creds.get('password', '')
         domain = req.headers.get('X-Domain', 'default')
