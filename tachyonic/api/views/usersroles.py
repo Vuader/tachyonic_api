@@ -4,8 +4,8 @@ from collections import OrderedDict
 
 from tachyonic import router
 from tachyonic import app
-from tachyonic.common import constants as const
-from tachyonic.common import exceptions
+from tachyonic.neutrino import constants as const
+from tachyonic.neutrino import exceptions
 from tachyonic.neutrino.mysql import Mysql
 
 from tachyonic.api.api import sql as api

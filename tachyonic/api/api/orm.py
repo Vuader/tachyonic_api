@@ -1,7 +1,7 @@
 import logging
 import re
 
-from tachyonic.common import exceptions
+from tachyonic.neutrino import exceptions
 from tachyonic.neutrino import model as nfw_model
 
 from tachyonic.api.mysql import Mysql

@@ -1,6 +1,7 @@
 import pymysql as MySQLdb
+
 from tachyonic.neutrino.mysql import Mysql as NfwMysql
-from tachyonic.common import exceptions
+from tachyonic.neutrino import exceptions
 
 
 class Mysql(object):
