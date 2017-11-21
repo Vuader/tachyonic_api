@@ -31,7 +31,7 @@ def table_has_col(table, column):
 
 
 def parse_body(body, domain, domain_id, tenant, tenant_id):
-    obj = json.loads(body)
+    obj = json.loads(body.decode('utf-8'))
     if 'id' in obj:
         del obj['id']
     if domain is True:
