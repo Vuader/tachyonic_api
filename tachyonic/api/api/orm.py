@@ -52,15 +52,18 @@ def get(model, req, resp, id, where=None, where_values=None,
 
     sql_search_where = []
     if search is not None:
-        search = "%s%s" % (search,'%')
         for field in data._declared_fields:
             f = getattr(data, field)
             if isinstance(f, nfw_model.Fields.Text):
                 sql_search_where.append("%s like %s" % (field, '%s'))
-                sql_values.append(search)
+                sql_values.append(search + '%')
             if isinstance(f, nfw_model.Fields.Integer):
-                sql_search_where.append("%s like %s" % (field, '%s'))
-                sql_values.append(int(search))
+                try:
+                    search = int(search)
+                    sql_search_where.append("%s = %s" % (field, '%i'))
+                    sql_values.append(search)
+                except:
+                    pass
         if len(sql_search_where) > 0:
             sql_search_string = " or ".join(sql_search_where)
             sql_where.append("( %s )" % (sql_search_string,))
