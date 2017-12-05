@@ -84,12 +84,12 @@ class Themes(object):
             background_type = result[0]['background_type']
             background_timestamp = result[0]['background_timestamp']
             if logo_name is not None and logo_name != '':
-                data['logo'] = base64.b64encode(logo)
+                data['logo'] = base64.b64encode(logo).decode('utf-8')
                 data['logo_type'] = logo_type
                 data['logo_name'] = logo_name
                 data['logo_timestamp'] = str(logo_timestamp.strftime("%Y/%m/%d %H:%M:%S"))
             if background_name is not None and background_name != '':
-                data['background'] = base64.b64encode(background)
+                data['background'] = base64.b64encode(background).decode('utf-8')
                 data['background_type'] = background_type
                 data['background_name'] = background_name
                 data['background_timestamp'] = str(background_timestamp.strftime("%Y/%m/%d %H:%M:%S"))
@@ -173,7 +173,7 @@ class Themes(object):
                                domain_id)
         if len(result) > 0:
             db = Mysql()
-            data = json.loads(req.read())
+            data = req.json()
             for img in data:
                 if 'logo' in data:
                     name = data['logo']['name']
