@@ -49,10 +49,10 @@ class Token(object):
                 req.context['extra'] = json.loads(result[0]['extra'])
                 req.context['user_id'] = user_id
                 if not auth.is_user_enabled(user_id):
-                    raise exceptions.HTTPError(const.HTTP_404, 'Authentication failed',
+                    raise exceptions.HTTPError(404, 'Authentication failed',
                                         'User Account suspended')
                 if not auth.is_user_tenant_enabled(user_id):
-                    raise exceptions.HTTPError(const.HTTP_404, 'Authentication failed',
+                    raise exceptions.HTTPError(404, 'Authentication failed',
                                         'Tenant Account suspended')
                 req.context['token'] = token
 
@@ -65,7 +65,7 @@ class Token(object):
                            " WHERE token = %s", (token,))
                 db.commit()
             else:
-                raise exceptions.HTTPError(const.HTTP_404, 'Authentication failed',
+                raise exceptions.HTTPError(404, 'Authentication failed',
                                     'Token not found or expired')
 
             if auth.authenticate_user_domain(user_id, domain_id):
