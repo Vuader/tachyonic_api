@@ -1,9 +1,9 @@
 import logging
 
-from tachyonic import app
-from tachyonic import router
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino.imports import get_class
+from tachyonic.neutrino.wsgi import app
+from tachyonic.neutrino.wsgi import router
 
 from tachyonic.api.models import users
 from tachyonic.neutrino import exceptions
