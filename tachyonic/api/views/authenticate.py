@@ -3,9 +3,8 @@ import json
 import uuid
 from collections import OrderedDict
 
-from tachyonic import app
-from tachyonic import router
-
+from tachyonic.neutrino.wsgi import app
+from tachyonic.neutrino.wsgi import router
 from tachyonic.neutrino import constants as const
 from tachyonic.neutrino.mysql import Mysql
 from tachyonic.neutrino import exceptions
